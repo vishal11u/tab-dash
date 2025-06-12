@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tab Dashboard</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      .dashboard {
+        display: flex;
+        height: 100vh;
+      }
+
+      .sidebar {
+        width: 300px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-right: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+      }
+
+      .sidebar-header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .sidebar-header h1 {
+        color: white;
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+
+      .sidebar-header .clock {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 14px;
+      }
+
+      .tab-list {
+        flex: 1;
+        overflow-y: auto;
+        margin-bottom: 20px;
+      }
+
+      .tab-item {
+        display: flex;
+        align-items: center;
+        padding: 12px;
+        margin-bottom: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 1px solid transparent;
+      }
+
+      .tab-item:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateX(5px);
+      }
+
+      .tab-item.active {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.4);
+      }
+
+      .tab-icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 12px;
+        border-radius: 3px;
+        background: #4f46e5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 12px;
+      }
+
+      .tab-info {
+        flex: 1;
+      }
+
+      .tab-name {
+        color: white;
+        font-weight: 500;
+        font-size: 14px;
+        margin-bottom: 2px;
+      }
+
+      .tab-time {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 12px;
+      }
+
+      .tab-controls {
+        display: flex;
+        gap: 5px;
+      }
+
+      .tab-control-btn {
+        width: 24px;
+        height: 24px;
+        border: none;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        transition: all 0.2s ease;
+      }
+
+      .tab-control-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .add-tab-btn {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        border: none;
+        background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        border-radius: 50%;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .add-tab-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+      }
+
+      .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .top-bar {
+        height: 60px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        padding: 0 20px;
+        justify-content: space-between;
+      }
+
+      .top-bar-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .view-toggle {
+        display: flex;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 25px;
+        padding: 3px;
+      }
+
+      .view-toggle button {
+        padding: 8px 16px;
+        border: none;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.7);
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .view-toggle button.active {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+      }
+
+      .search-box {
+        padding: 8px 15px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        outline: none;
+        width: 200px;
+      }
+
+      .search-box::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      .content-area {
+        flex: 1;
+        padding: 20px;
+        overflow: hidden;
+      }
+
+      .iframe-container {
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        background: white;
+      }
+
+      .iframe-container iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+
+      .analytics-view {
+        display: none;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        height: 100%;
+        overflow-y: auto;
+      }
+
+      .analytics-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .analytics-card h3 {
+        color: white;
+        margin-bottom: 15px;
+        font-size: 18px;
+      }
+
+      .stat-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .stat-item:last-child {
+        border-bottom: none;
+      }
+
+      .stat-label {
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      .stat-value {
+        color: white;
+        font-weight: 600;
+      }
+
+      .chart-container {
+        height: 200px;
+        margin-top: 15px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      /* Modal Styles */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(5px);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal-content {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        padding: 30px;
+        width: 90%;
+        max-width: 500px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        position: relative;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+      }
+
+      .modal-header h2 {
+        color: white;
+        font-size: 24px;
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        padding: 5px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        color: white;
+        margin-bottom: 8px;
+        font-weight: 500;
+      }
+
+      .form-group input,
+      .form-group select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        outline: none;
+        font-size: 14px;
+      }
+
+      .form-group input::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      .submit-btn {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border: none;
+        border-radius: 10px;
+        color: white;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      .preset-tabs {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .preset-tab {
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        color: white;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 12px;
+      }
+
+      .preset-tab:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .productivity-score {
+        font-size: 32px;
+        font-weight: bold;
+        text-align: center;
+        margin: 20px 0;
+        color: #4ade80;
+      }
+
+      .focus-indicator {
+        width: 100%;
+        height: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 10px;
+      }
+
+      .focus-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+      }
+
+      @media (max-width: 768px) {
+        .sidebar {
+          width: 250px;
+        }
+
+        .search-box {
+          width: 150px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dashboard">
+      <div class="sidebar">
+        <div class="sidebar-header">
+          <h1>📊 TabDash</h1>
+          <div class="clock" id="clock">Loading...</div>
+        </div>
+
+        <div class="tab-list" id="tabList">
+          <!-- Tabs will be dynamically added here -->
+        </div>
+
+        <button class="add-tab-btn" id="addTabBtn">+</button>
+      </div>
+
+      <div class="main-content">
+        <div class="top-bar">
+          <div class="top-bar-left">
+            <div class="view-toggle">
+              <button class="active" id="tabViewBtn">Tabs</button>
+              <button id="analyticsViewBtn">Analytics</button>
+            </div>
+            <input
+              type="text"
+              class="search-box"
+              placeholder="Search tabs..."
+              id="searchBox"
+            />
+          </div>
+          <div>
+            <span style="color: rgba(255, 255, 255, 0.8)">Focus Score: </span>
+            <span style="color: #4ade80; font-weight: bold" id="focusScore"
+              >85%</span
+            >
+          </div>
+        </div>
+
+        <div class="content-area">
+          <div class="iframe-container" id="iframeContainer">
+            <iframe id="mainIframe" src="about:blank"></iframe>
+          </div>
+
+          <div class="analytics-view" id="analyticsView">
+            <div class="analytics-card">
+              <h3>📈 Today's Usage</h3>
+              <div class="stat-item">
+                <span class="stat-label">Total Time</span>
+                <span class="stat-value" id="totalTime">0h 0m</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Active Tabs</span>
+                <span class="stat-value" id="activeTabs">0</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Most Used</span>
+                <span class="stat-value" id="mostUsed">-</span>
+              </div>
+              <div class="productivity-score" id="productivityScore">85%</div>
+              <div class="focus-indicator">
+                <div class="focus-bar" style="width: 85%"></div>
+              </div>
+            </div>
+
+            <div class="analytics-card">
+              <h3>⏱️ Time Tracking</h3>
+              <div id="timeStats">
+                <!-- Time stats will be populated here -->
+              </div>
+              <div class="chart-container">📊 Usage Chart</div>
+            </div>
+
+            <div class="analytics-card">
+              <h3>🎯 Productivity Insights</h3>
+              <div class="stat-item">
+                <span class="stat-label">Focus Sessions</span>
+                <span class="stat-value">3</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Avg. Session</span>
+                <span class="stat-value">25min</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Distractions</span>
+                <span class="stat-value">12</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Efficiency</span>
+                <span class="stat-value">High</span>
+              </div>
+            </div>
+
+            <div class="analytics-card">
+              <h3>📅 Weekly Overview</h3>
+              <div class="chart-container">📈 Weekly Trends</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="addTabModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Add New Tab</h2>
+          <button class="close-btn" id="closeModal">&times;</button>
+        </div>
+
+        <div class="preset-tabs">
+          <div class="preset-tab" data-preset="whatsapp">💬 WhatsApp</div>
+          <div class="preset-tab" data-preset="tradingview">📈 TradingView</div>
+          <div class="preset-tab" data-preset="github">🐙 GitHub</div>
+          <div class="preset-tab" data-preset="gmail">📧 Gmail</div>
+          <div class="preset-tab" data-preset="youtube">🎥 YouTube</div>
+          <div class="preset-tab" data-preset="twitter">🐦 Twitter</div>
+        </div>
+
+        <form id="addTabForm">
+          <div class="form-group">
+            <label for="tabName">Tab Name</label>
+            <input
+              type="text"
+              id="tabName"
+              placeholder="Enter tab name"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="tabUrl">URL</label>
+            <input
+              type="url"
+              id="tabUrl"
+              placeholder="https://example.com"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="tabIcon">Icon (Emoji or Symbol)</label>
+            <input type="text" id="tabIcon" placeholder="🌐" maxlength="2" />
+          </div>
+
+          <div class="form-group">
+            <label for="tabCategory">Category</label>
+            <select id="tabCategory">
+              <option value="work">Work</option>
+              <option value="social">Social</option>
+              <option value="entertainment">Entertainment</option>
+              <option value="productivity">Productivity</option>
+              <option value="development">Development</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <button type="submit" class="submit-btn">Add Tab</button>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      class TabDashboard {
+        constructor() {
+          this.tabs = this.loadTabs();
+          this.currentTab = null;
+          this.analytics = this.loadAnalytics();
+          this.timers = {};
+
+          this.initializeElements();
+          this.bindEvents();
+          this.startClock();
+          this.loadDefaultTabs();
+          this.updateAnalytics();
+          this.startTracking();
+        }
+
+        initializeElements() {
+          this.tabList = document.getElementById("tabList");
+          this.addTabBtn = document.getElementById("addTabBtn");
+          this.modal = document.getElementById("addTabModal");
+          this.closeModal = document.getElementById("closeModal");
+          this.addTabForm = document.getElementById("addTabForm");
+          this.mainIframe = document.getElementById("mainIframe");
+          this.tabViewBtn = document.getElementById("tabViewBtn");
+          this.analyticsViewBtn = document.getElementById("analyticsViewBtn");
+          this.iframeContainer = document.getElementById("iframeContainer");
+          this.analyticsView = document.getElementById("analyticsView");
+          this.searchBox = document.getElementById("searchBox");
+        }
+
+        bindEvents() {
+          this.addTabBtn.addEventListener("click", () => this.showModal());
+          this.closeModal.addEventListener("click", () => this.hideModal());
+          this.addTabForm.addEventListener("submit", (e) =>
+            this.handleAddTab(e)
+          );
+
+          // View toggle
+          this.tabViewBtn.addEventListener("click", () => this.showTabView());
+          this.analyticsViewBtn.addEventListener("click", () =>
+            this.showAnalyticsView()
+          );
+
+          // Search functionality
+          this.searchBox.addEventListener("input", (e) =>
+            this.searchTabs(e.target.value)
+          );
+
+          // Preset tabs
+          document.querySelectorAll(".preset-tab").forEach((preset) => {
+            preset.addEventListener("click", () =>
+              this.selectPreset(preset.dataset.preset)
+            );
+          });
+
+          // Close modal on outside click
+          this.modal.addEventListener("click", (e) => {
+            if (e.target === this.modal) this.hideModal();
+          });
+        }
+
+        loadDefaultTabs() {
+          if (this.tabs.length === 0) {
+            const defaultTabs = [
+              {
+                id: 1,
+                name: "WhatsApp Web",
+                url: "https://web.whatsapp.com/",
+                icon: "💬",
+                category: "social",
+                timeSpent: 0,
+              },
+              {
+                id: 2,
+                name: "TradingView",
+                url: "https://tradingview.com/",
+                icon: "📈",
+                category: "work",
+                timeSpent: 0,
+              },
+              {
+                id: 3,
+                name: "GitHub",
+                url: "https://github.com/",
+                icon: "🐙",
+                category: "development",
+                timeSpent: 0,
+              },
+              {
+                id: 4,
+                name: "Gmail",
+                url: "https://mail.google.com/",
+                icon: "📧",
+                category: "productivity",
+                timeSpent: 0,
+              },
+            ];
+            this.tabs = defaultTabs;
+            this.saveTabs();
+          }
+          this.renderTabs();
+        }
+
+        renderTabs() {
+          this.tabList.innerHTML = "";
+          this.tabs.forEach((tab) => {
+            const tabElement = this.createTabElement(tab);
+            this.tabList.appendChild(tabElement);
+          });
+        }
+
+        createTabElement(tab) {
+          const div = document.createElement("div");
+          div.className = "tab-item";
+          div.dataset.tabId = tab.id;
+
+          const timeSpent = this.formatTime(tab.timeSpent || 0);
+
+          div.innerHTML = `
+                    <div class="tab-icon">${tab.icon || "🌐"}</div>
+                    <div class="tab-info">
+                        <div class="tab-name">${tab.name}</div>
+                        <div class="tab-time">${timeSpent}</div>
+                    </div>
+                    <div class="tab-controls">
+                        <button class="tab-control-btn" onclick="event.stopPropagation(); tabDashboard.openInNewWindow('${
+                          tab.url
+                        }')" title="Open in new window">↗</button>
+                        <button class="tab-control-btn" onclick="event.stopPropagation(); tabDashboard.removeTab(${
+                          tab.id
+                        })" title="Remove tab">×</button>
+                    </div>
+                `;
+
+          div.addEventListener("click", () => this.selectTab(tab));
+          return div;
+        }
+
+        selectTab(tab) {
+          this.currentTab = tab;
+
+          // Check if the URL can be loaded in iframe
+          this.loadTabContent(tab);
+
+          // Update active tab styling
+          document.querySelectorAll(".tab-item").forEach((item) => {
+            item.classList.remove("active");
+          });
+          document
+            .querySelector(`[data-tab-id="${tab.id}"]`)
+            .classList.add("active");
+
+          // Start time tracking for this tab
+          this.startTabTimer(tab.id);
+        }
+
+        loadTabContent(tab) {
+          const iframe = this.mainIframe;
+          const container = this.iframeContainer;
+
+          // Clear previous content
+          container.innerHTML = "";
+
+          // List of sites that typically block iframe embedding
+          const blockedSites = [
+            "web.whatsapp.com",
+            "whatsapp.com",
+            "facebook.com",
+            "instagram.com",
+            "twitter.com",
+            "x.com",
+            "linkedin.com",
+            "youtube.com",
+            "gmail.com",
+            "google.com",
+          ];
+
+          const url = new URL(tab.url);
+          const isBlocked = blockedSites.some((site) =>
+            url.hostname.includes(site)
+          );
+
+          if (isBlocked) {
+            // Show alternative view for blocked sites
+            container.innerHTML = `
+                        <div style="
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                            height: 100%;
+                            background: rgba(255, 255, 255, 0.1);
+                            border-radius: 10px;
+                            text-align: center;
+                            padding: 40px;
+                        ">
+                            <div style="font-size: 48px; margin-bottom: 20px;">${tab.icon}</div>
+                            <h2 style="color: white; margin-bottom: 15px; font-size: 24px;">${tab.name}</h2>
+                            <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 25px; font-size: 16px;">
+                                This site can't be displayed in an iframe due to security restrictions.
+                            </p>
+                            <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+                                <button onclick="window.open('${tab.url}', '_blank')" style="
+                                    padding: 12px 24px;
+                                    background: linear-gradient(135deg, #667eea, #764ba2);
+                                    border: none;
+                                    border-radius: 25px;
+                                    color: white;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    transition: all 0.3s ease;
+                                    font-size: 14px;
+                                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.3)'" 
+                                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                    🚀 Open in New Tab
+                                </button>
+                                <button onclick="tabDashboard.openInPopup('${tab.url}', '${tab.name}')" style="
+                                    padding: 12px 24px;
+                                    background: rgba(255, 255, 255, 0.1);
+                                    border: 1px solid rgba(255, 255, 255, 0.2);
+                                    border-radius: 25px;
+                                    color: white;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    transition: all 0.3s ease;
+                                    font-size: 14px;
+                                " onmouseover="this.style.background='rgba(255, 255, 255, 0.2)'" 
+                                   onmouseout="this.style.background='rgba(255, 255, 255, 0.1)'">
+                                    📱 Open in Popup
+                                </button>
+                                <button onclick="tabDashboard.openInSidebar('${tab.url}', '${tab.name}')" style="
+                                    padding: 12px 24px;
+                                    background: rgba(255, 255, 255, 0.1);
+                                    border: 1px solid rgba(255, 255, 255, 0.2);
+                                    border-radius: 25px;
+                                    color: white;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    transition: all 0.3s ease;
+                                    font-size: 14px;
+                                " onmouseover="this.style.background='rgba(255, 255, 255, 0.2)'" 
+                                   onmouseout="this.style.background='rgba(255, 255, 255, 0.1)'">
+                                    ⚡ Quick Access
+                                </button>
+                            </div>
+                            <div style="margin-top: 25px; padding: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                                <p style="color: rgba(255, 255, 255, 0.7); font-size: 12px; margin-bottom: 10px;">💡 Pro Tip:</p>
+                                <p style="color: rgba(255, 255, 255, 0.6); font-size: 12px;">
+                                    For the best experience with ${tab.name}, use the "Open in New Tab" option or create a dedicated browser profile.
+                                </p>
+                            </div>
+                        </div>
+                    `;
+          } else {
+            // Try to load in iframe for non-blocked sites
+            const newIframe = document.createElement("iframe");
+            newIframe.id = "mainIframe";
+            newIframe.src = tab.url;
+            newIframe.style.cssText = `
+                        width: 100%;
+                        height: 100%;
+                        border: none;
+                        border-radius: 10px;
+                    `;
+
+            // Add error handling for iframe loading
+            newIframe.onerror = () => {
+              container.innerHTML = `
+                            <div style="
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                justify-content: center;
+                                height: 100%;
+                                background: rgba(255, 255, 255, 0.1);
+                                border-radius: 10px;
+                                text-align: center;
+                                padding: 40px;
+                            ">
+                                <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
+                                <h2 style="color: white; margin-bottom: 15px;">Failed to Load</h2>
+                                <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 25px;">
+                                    Unable to load ${tab.name} in the dashboard.
+                                </p>
+                                <button onclick="window.open('${tab.url}', '_blank')" style="
+                                    padding: 12px 24px;
+                                    background: linear-gradient(135deg, #667eea, #764ba2);
+                                    border: none;
+                                    border-radius: 25px;
+                                    color: white;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                ">
+                                    Open in New Tab
+                                </button>
+                            </div>
+                        `;
+            };
+
+            container.appendChild(newIframe);
+            this.mainIframe = newIframe;
+          }
+        }
+
+        openInPopup(url, name) {
+          const popup = window.open(
+            url,
+            name,
+            "width=1200,height=800,scrollbars=yes,resizable=yes,toolbar=no,menubar=no,location=no,directories=no,status=no"
+          );
+
+          if (popup) {
+            showNotification(`${name} opened in popup window`, "success");
+          } else {
+            showNotification(
+              "Popup blocked. Please allow popups for this site.",
+              "warning"
+            );
+          }
+        }
+
+        openInSidebar(url, name) {
+          // Create a mini floating window within the dashboard
+          const existingSidebar = document.querySelector(".floating-sidebar");
+          if (existingSidebar) {
+            existingSidebar.remove();
+          }
+
+          const floatingSidebar = document.createElement("div");
+          floatingSidebar.className = "floating-sidebar";
+          floatingSidebar.style.cssText = `
+                    position: fixed;
+                    top: 100px;
+                    right: 20px;
+                    width: 400px;
+                    height: 500px;
+                    background: rgba(255, 255, 255, 0.1);
+                    backdrop-filter: blur(20px);
+                    border-radius: 15px;
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    z-index: 1000;
+                    padding: 15px;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                `;
+
+          floatingSidebar.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; color: white;">
+                        <h3 style="margin: 0; font-size: 16px;">${name}</h3>
+                        <button onclick="this.closest('.floating-sidebar').remove()" style="
+                            background: none;
+                            border: none;
+                            color: white;
+                            font-size: 18px;
+                            cursor: pointer;
+                            padding: 5px;
+                        ">×</button>
+                    </div>
+                    <div style="text-align: center; padding: 40px; background: rgba(255, 255, 255, 0.05); border-radius: 10px;">
+                        <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 20px;">Quick access to ${name}</p>
+                        <button onclick="window.open('${url}', '_blank')" style="
+                            padding: 10px 20px;
+                            background: linear-gradient(135deg, #667eea, #764ba2);
+                            border: none;
+                            border-radius: 20px;
+                            color: white;
+                            cursor: pointer;
+                        ">Open ${name}</button>
+                    </div>
+                `;
+
+          document.body.appendChild(floatingSidebar);
+          showNotification(`${name} quick access panel opened`, "info");
+        }
+
+        startTabTimer(tabId) {
+          // Stop all other timers
+          Object.keys(this.timers).forEach((id) => {
+            if (this.timers[id]) {
+              clearInterval(this.timers[id]);
+              this.timers[id] = null;
+            }
+          });
+
+          // Start timer for current tab
+          this.timers[tabId] = setInterval(() => {
+            const tab = this.tabs.find((t) => t.id == tabId);
+            if (tab) {
+              tab.timeSpent = (tab.timeSpent || 0) + 1;
+              this.saveTabs();
+              this.updateTabTimeDisplay(tabId);
+              this.updateAnalytics();
+            }
+          }, 1000);
+        }
+
+        updateTabTimeDisplay(tabId) {
+          const tabElement = document.querySelector(`[data-tab-id="${tabId}"]`);
+          const tab = this.tabs.find((t) => t.id == tabId);
+          if (tabElement && tab) {
+            const timeElement = tabElement.querySelector(".tab-time");
+            timeElement.textContent = this.formatTime(tab.timeSpent || 0);
+          }
+        }
+
+        formatTime(seconds) {
+          const hours = Math.floor(seconds / 3600);
+          const minutes = Math.floor((seconds % 3600) / 60);
+          const secs = seconds % 60;
+
+          if (hours > 0) {
+            return `${hours}h ${minutes}m`;
+          } else if (minutes > 0) {
+            return `${minutes}m ${secs}s`;
+          } else {
+            return `${secs}s`;
+          }
+        }
+
+        showModal() {
+          this.modal.style.display = "flex";
+          document.getElementById("tabName").focus();
+        }
+
+        hideModal() {
+          this.modal.style.display = "none";
+          this.addTabForm.reset();
+        }
+
+        selectPreset(preset) {
+          const presets = {
+            whatsapp: {
+              name: "WhatsApp Web",
+              url: "https://web.whatsapp.com/",
+              icon: "💬",
+              category: "social",
+            },
+            tradingview: {
+              name: "TradingView",
+              url: "https://tradingview.com/",
+              icon: "📈",
+              category: "work",
+            },
+            github: {
+              name: "GitHub",
+              url: "https://github.com/",
+              icon: "🐙",
+              category: "development",
+            },
+            gmail: {
+              name: "Gmail",
+              url: "https://mail.google.com/",
+              icon: "📧",
+              category: "productivity",
+            },
+            youtube: {
+              name: "YouTube",
+              url: "https://youtube.com/",
+              icon: "🎥",
+              category: "entertainment",
+            },
+            twitter: {
+              name: "Twitter",
+              url: "https://twitter.com/",
+              icon: "🐦",
+              category: "social",
+            },
+          };
+
+          const data = presets[preset];
+          if (data) {
+            document.getElementById("tabName").value = data.name;
+            document.getElementById("tabUrl").value = data.url;
+            document.getElementById("tabIcon").value = data.icon;
+            document.getElementById("tabCategory").value = data.category;
+          }
+        }
+
+        handleAddTab(e) {
+          e.preventDefault();
+
+          const name = document.getElementById("tabName").value;
+          const url = document.getElementById("tabUrl").value;
+          const icon = document.getElementById("tabIcon").value || "🌐";
+          const category = document.getElementById("tabCategory").value;
+
+          const newTab = {
+            id: Date.now(),
+            name,
+            url,
+            icon,
+            category,
+            timeSpent: 0,
+            createdAt: new Date().toISOString(),
+          };
+
+          this.tabs.push(newTab);
+          this.saveTabs();
+          this.renderTabs();
+          this.hideModal();
+
+          // Auto-select the new tab
+          setTimeout(() => this.selectTab(newTab), 100);
+        }
+
+        removeTab(tabId) {
+          if (confirm("Are you sure you want to remove this tab?")) {
+            this.tabs = this.tabs.filter((tab) => tab.id !== tabId);
+            this.saveTabs();
+            this.renderTabs();
+
+            // Clear timer if it's the current tab
+            if (this.timers[tabId]) {
+              clearInterval(this.timers[tabId]);
+              delete this.timers[tabId];
+            }
+
+            // If it was the current tab, clear the iframe
+            if (this.currentTab && this.currentTab.id === tabId) {
+              this.currentTab = null;
+              this.mainIframe.src = "about:blank";
+            }
+          }
+        }
+
+        openInNewWindow(url) {
+          window.open(url, "_blank", "width=1200,height=800");
+        }
+
+        searchTabs(query) {
+          const filteredTabs = this.tabs.filter(
+            (tab) =>
+              tab.name.toLowerCase().includes(query.toLowerCase()) ||
+              tab.url.toLowerCase().includes(query.toLowerCase()) ||
+              tab.category.toLowerCase().includes(query.toLowerCase())
+          );
+
+          this.tabList.innerHTML = "";
+          filteredTabs.forEach((tab) => {
+            const tabElement = this.createTabElement(tab);
+            this.tabList.appendChild(tabElement);
+          });
+        }
+
+        showTabView() {
+          this.tabViewBtn.classList.add("active");
+          this.analyticsViewBtn.classList.remove("active");
+          this.iframeContainer.style.display = "block";
+          this.analyticsView.style.display = "none";
+        }
+
+        showAnalyticsView() {
+          this.analyticsViewBtn.classList.add("active");
+          this.tabViewBtn.classList.remove("active");
+          this.iframeContainer.style.display = "none";
+          this.analyticsView.style.display = "grid";
+          this.updateAnalytics();
+        }
+
+        updateAnalytics() {
+          const totalTime = this.tabs.reduce(
+            (sum, tab) => sum + (tab.timeSpent || 0),
+            0
+          );
+          const activeTabs = this.tabs.length;
+          const mostUsedTab = this.tabs.reduce(
+            (max, tab) =>
+              (tab.timeSpent || 0) > (max.timeSpent || 0) ? tab : max,
+            this.tabs[0] || { name: "None" }
+          );
+
+          // Update analytics display
+          document.getElementById("totalTime").textContent =
+            this.formatTime(totalTime);
+          document.getElementById("activeTabs").textContent = activeTabs;
+          document.getElementById("mostUsed").textContent = mostUsedTab.name;
+
+          // Update time stats
+          const timeStatsContainer = document.getElementById("timeStats");
+          timeStatsContainer.innerHTML = "";
+
+          // Sort tabs by time spent
+          const sortedTabs = [...this.tabs].sort(
+            (a, b) => (b.timeSpent || 0) - (a.timeSpent || 0)
+          );
+
+          sortedTabs.slice(0, 5).forEach((tab) => {
+            const statItem = document.createElement("div");
+            statItem.className = "stat-item";
+            statItem.innerHTML = `
+                        <span class="stat-label">${tab.icon} ${tab.name}</span>
+                        <span class="stat-value">${this.formatTime(
+                          tab.timeSpent || 0
+                        )}</span>
+                    `;
+            timeStatsContainer.appendChild(statItem);
+          });
+
+          // Calculate and update productivity score
+          const productivityScore = this.calculateProductivityScore();
+          document.getElementById(
+            "focusScore"
+          ).textContent = `${productivityScore}%`;
+          document.getElementById(
+            "productivityScore"
+          ).textContent = `${productivityScore}%`;
+
+          // Update focus bar
+          const focusBar = document.querySelector(".focus-bar");
+          focusBar.style.width = `${productivityScore}%`;
+
+          // Update focus bar color based on score
+          if (productivityScore >= 80) {
+            focusBar.style.background = "#10b981";
+          } else if (productivityScore >= 60) {
+            focusBar.style.background = "#f59e0b";
+          } else {
+            focusBar.style.background = "#ef4444";
+          }
+        }
+
+        calculateProductivityScore() {
+          if (this.tabs.length === 0) return 0;
+
+          const totalTime = this.tabs.reduce(
+            (sum, tab) => sum + (tab.timeSpent || 0),
+            0
+          );
+          if (totalTime === 0) return 85; // Default score
+
+          // Calculate based on productive vs non-productive time
+          const productiveCategories = ["work", "productivity", "development"];
+          const productiveTime = this.tabs
+            .filter((tab) => productiveCategories.includes(tab.category))
+            .reduce((sum, tab) => sum + (tab.timeSpent || 0), 0);
+
+          const score = Math.round((productiveTime / totalTime) * 100);
+          return Math.max(0, Math.min(100, score));
+        }
+
+        startClock() {
+          const updateClock = () => {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            const dateString = now.toLocaleDateString();
+            document.getElementById(
+              "clock"
+            ).textContent = `${timeString} | ${dateString}`;
+          };
+
+          updateClock();
+          setInterval(updateClock, 1000);
+        }
+
+        startTracking() {
+          // Update analytics every 30 seconds
+          setInterval(() => {
+            this.updateAnalytics();
+          }, 30000);
+
+          // Save data every 5 minutes
+          setInterval(() => {
+            this.saveTabs();
+            this.saveAnalytics();
+          }, 300000);
+        }
+
+        loadTabs() {
+          // Using in-memory storage for demo - in a real extension, this would use Chrome storage API
+          if (!window.tabDashStorage) {
+            window.tabDashStorage = {};
+          }
+          return window.tabDashStorage.tabs || [];
+        }
+
+        saveTabs() {
+          if (!window.tabDashStorage) {
+            window.tabDashStorage = {};
+          }
+          window.tabDashStorage.tabs = this.tabs;
+        }
+
+        loadAnalytics() {
+          if (!window.tabDashStorage) {
+            window.tabDashStorage = {};
+          }
+          return (
+            window.tabDashStorage.analytics || {
+              dailyStats: {},
+              weeklyStats: {},
+              totalSessions: 0,
+              averageSessionTime: 0,
+            }
+          );
+        }
+
+        saveAnalytics() {
+          if (!window.tabDashStorage) {
+            window.tabDashStorage = {};
+          }
+          window.tabDashStorage.analytics = this.analytics;
+        }
+
+        // Export/Import functionality
+        exportData() {
+          const data = {
+            tabs: this.tabs,
+            analytics: this.analytics,
+            exportDate: new Date().toISOString(),
+          };
+
+          const blob = new Blob([JSON.stringify(data, null, 2)], {
+            type: "application/json",
+          });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `tabdash-backup-${
+            new Date().toISOString().split("T")[0]
+          }.json`;
+          a.click();
+          URL.revokeObjectURL(url);
+        }
+
+        importData(file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            try {
+              const data = JSON.parse(e.target.result);
+              if (data.tabs && Array.isArray(data.tabs)) {
+                if (
+                  confirm("This will replace all your current tabs. Continue?")
+                ) {
+                  this.tabs = data.tabs;
+                  this.analytics = data.analytics || this.analytics;
+                  this.saveTabs();
+                  this.saveAnalytics();
+                  this.renderTabs();
+                  this.updateAnalytics();
+                  alert("Data imported successfully!");
+                }
+              } else {
+                alert("Invalid backup file format.");
+              }
+            } catch (error) {
+              alert("Error reading backup file.");
+            }
+          };
+          reader.readAsText(file);
+        }
+
+        // Keyboard shortcuts
+        handleKeyboardShortcuts(e) {
+          if (e.ctrlKey || e.metaKey) {
+            switch (e.key) {
+              case "n":
+                e.preventDefault();
+                this.showModal();
+                break;
+              case "f":
+                e.preventDefault();
+                this.searchBox.focus();
+                break;
+              case "1":
+              case "2":
+              case "3":
+              case "4":
+              case "5":
+              case "6":
+              case "7":
+              case "8":
+              case "9":
+                e.preventDefault();
+                const index = parseInt(e.key) - 1;
+                if (this.tabs[index]) {
+                  this.selectTab(this.tabs[index]);
+                }
+                break;
+            }
+          }
+
+          if (e.key === "Escape") {
+            this.hideModal();
+          }
+        }
+      }
+
+      // Initialize the dashboard
+      let tabDashboard;
+
+      document.addEventListener("DOMContentLoaded", () => {
+        tabDashboard = new TabDashboard();
+
+        // Add keyboard shortcuts
+        document.addEventListener("keydown", (e) => {
+          tabDashboard.handleKeyboardShortcuts(e);
+        });
+
+        // Add context menu for additional options
+        document.addEventListener("contextmenu", (e) => {
+          e.preventDefault();
+          // You can add a custom context menu here
+        });
+
+        // Handle window beforeunload to save data
+        window.addEventListener("beforeunload", () => {
+          tabDashboard.saveTabs();
+          tabDashboard.saveAnalytics();
+        });
+      });
+
+      // Add some additional utility functions
+      function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen();
+        } else {
+          document.exitFullscreen();
+        }
+      }
+
+      function toggleTheme() {
+        document.body.classList.toggle("dark-theme");
+        // Store theme preference in memory instead of localStorage
+        if (!window.tabDashStorage) {
+          window.tabDashStorage = {};
+        }
+        window.tabDashStorage.theme = document.body.classList.contains(
+          "dark-theme"
+        )
+          ? "dark"
+          : "light";
+      }
+
+      // Add notification system
+      function showNotification(message, type = "info") {
+        const notification = document.createElement("div");
+        notification.className = `notification notification-${type}`;
+        notification.textContent = message;
+        notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+                border-radius: 10px;
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                z-index: 10000;
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+            `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+          notification.style.transform = "translateX(0)";
+        }, 100);
+
+        setTimeout(() => {
+          notification.style.transform = "translateX(100%)";
+          setTimeout(() => {
+            document.body.removeChild(notification);
+          }, 300);
+        }, 3000);
+      }
+
+      // Add focus mode
+      function toggleFocusMode() {
+        document.body.classList.toggle("focus-mode");
+        const focusMode = document.body.classList.contains("focus-mode");
+        // Store focus mode preference in memory instead of localStorage
+        if (!window.tabDashStorage) {
+          window.tabDashStorage = {};
+        }
+        window.tabDashStorage.focusMode = focusMode;
+
+        if (focusMode) {
+          showNotification("Focus mode enabled", "success");
+        } else {
+          showNotification("Focus mode disabled", "info");
+        }
+      }
+    </script>
+  </body>
+</html>

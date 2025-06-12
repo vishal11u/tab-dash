@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            width: 350px;
+            padding: 0;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .popup-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .popup-header h2 {
+            margin: 0 0 5px 0;
+            font-size: 18px;
+        }
+
+        .popup-header p {
+            margin: 0;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .quick-stats {
+            padding: 15px 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-card .number {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .stat-card .label {
+            font-size: 11px;
+            opacity: 0.8;
+        }
+
+        .quick-actions {
+            padding: 15px 20px;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 12px;
+            margin: 6px 0;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .action-btn.primary {
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .recent-tabs {
+            padding: 0 20px 20px;
+        }
+
+        .recent-tabs h3 {
+            font-size: 14px;
+            margin: 0 0 10px 0;
+            opacity: 0.9;
+        }
+
+        .tab-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            margin: 4px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .tab-item img {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            border-radius: 2px;
+        }
+
+        .tab-item span {
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .focus-status {
+            padding: 10px 20px;
+            background: rgba(0, 242, 254, 0.2);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .focus-status.active {
+            background: rgba(255, 107, 107, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="popup-header">
+        <h2>Tab Dashboard</h2>
+        <p>Manage your productivity</p>
+    </div>
+
+    <div class="quick-stats">
+        <div class="stat-card">
+            <div class="number" id="activeTabsCount">0</div>
+            <div class="label">Active Tabs</div>
+        </div>
+        <div class="stat-card">
+            <div class="number" id="todayTime">0h 0m</div>
+            <div class="label">Today</div>
+        </div>
+    </div>
+
+    <div class="quick-actions">
+        <button class="action-btn primary" id="openDashboard">
+            🚀 Open Dashboard
+        </button>
+        <button class="action-btn" id="startFocus">
+            🎯 Start Focus (25min)
+        </button>
+        <button class="action-btn" id="viewAnalytics">
+            📊 View Analytics
+        </button>
+    </div>
+
+    <div class="recent-tabs">
+        <h3>Recent Tabs</h3>
+        <div id="recentTabsList">
+            <!-- Recent tabs will be populated here -->
+        </div>
+    </div>
+
+    <div class="focus-status" id="focusStatus" style="display: none;">
+        Focus mode active - 23:45 remaining
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>
