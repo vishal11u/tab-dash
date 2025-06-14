@@ -60,3 +60,31 @@ TabDash is built to solve the **frustration of juggling multiple tabs daily**. I
 
 ## 📂 Folder Structure
 
+/assets
+└── dashboard.png # Screenshot used in README
+/src
+└── components/
+└── pages/
+└── utils/
+
+
+---
+
+## 🙌 Contribution
+
+This is a conceptual prompt-based extension idea. If you’re a developer or designer interested in collaborating or building something like this, feel free to fork or reach out!
+
+---
+
+## 📅 Created On
+
+🗓️ June 12, 2025
+
+---
+
+## 📎 License
+
+MIT License – free to use and modify.
+
+---
+
